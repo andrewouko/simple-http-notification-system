@@ -1,0 +1,33 @@
+{
+  "name": "publisher-server",
+  "version": "1.0.0",
+  "description": "Server to manage the topics and subscribers",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewouko/simple-http-notification-system.git"
+  },
+  "keywords": [
+    "http",
+    "notification",
+    "system"
+  ],
+  "author": "Andrew Ouko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andrewouko/simple-http-notification-system/issues"
+  },
+  "homepage": "https://github.com/andrewouko/simple-http-notification-system#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.10.0",
+    "express-winston": "^4.1.0",
+    "lodash": "^4.17.21",
+    "winston": "^3.3.3"
+  }
+}

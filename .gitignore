@@ -1,0 +1,5 @@
+# remove all log files from 
+*.log
+
+# remove all csv files
+*.csv
