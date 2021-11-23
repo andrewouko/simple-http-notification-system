@@ -20,14 +20,14 @@
 
 ### 4. TEST IF APPLICATION IS INSTALLED CORRECTLY
 
-**Manual Test:**
+#### Manual Test:
 Navigate to `http://host:port/health` e.g http:localhost:8080/health and ensure the repsonse returns a http status code 200
 
 <br />
 
 Navigate to `http://host:port/status` e.g http:localhost:8080/status and ensure the repsonse returns a http status code 200
 
-**Unit test:**
+#### Unit test
 `npm test`
 
 
