@@ -27,10 +27,10 @@
 
 ## TEST IF APPLICATION IS INSTALLED CORRECTLY
 
-**Manual Test**
+**Manual Test:**
 Navigate to `http://host:port/health` e.g http:localhost:8080/health
 
-**Unit test**
+**Unit test:**
 `npm test`
 
 
