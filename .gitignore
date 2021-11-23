@@ -3,3 +3,7 @@
 
 # remove all csv files
 *.csv
+
+# dev dependencies
+node_modules
+coverage

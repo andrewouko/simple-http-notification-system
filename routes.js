@@ -2,7 +2,14 @@
 
 const { createSubsription, publishMessage } = require('./controllers/publisher.js');
 
-module.exports = app => {
+const { ErrorHandler, handleError } = require('./error.js');
+
+const errorHandlingRoute = function(req, res, next) {
+    let err =  new ErrorHandler(404, `The requested route: ${req.originalUrl} could not be found`, req.params)
+    return handleError(err, res)
+}
+
+const routes = app => {
     const { Ping, Health } = require('./controllers/system.js');
     // health check
     app.route('/health').get(Health)
@@ -16,3 +23,8 @@ module.exports = app => {
     // publish message to topic 
     app.route('/publish/:topic').post(publishMessage)
 };
+
+module.exports = {
+    errorHandlingRoute,
+    routes
+}

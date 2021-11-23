@@ -21,18 +21,15 @@ entryMiddleware(app)
 exitMiddleware(app)
 
 // register routes
-var routes = require('./routes.js');
-const { ErrorHandler, handleError } = require('./error.js');
+const { routes, errorHandlingRoute } = require('./routes.js');
+
 routes(app)
 
 // generic error handler
 errorHandlingMiddleware(app)
 
 // Handle 404
-app.use(function(req, res, next) {
-    let err =  new ErrorHandler(404, 'The requested route could not be found', req.params)
-    return handleError(err, res)
-});
+app.use((req, res, next) => errorHandlingRoute(req, res, next));
 
 // set port, listen for requests
 const port = process.env.PORT || 4000

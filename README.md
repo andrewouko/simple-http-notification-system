@@ -64,7 +64,7 @@
 ----
 * **URL: `/health`**
 
-    <_This endpoint is used to check of the api is working ok .>
+    <_This endpoint is used to check if the server has been started and is reachable.>
 
 * **Method:**
   `GET`
@@ -76,6 +76,13 @@
 ```html
     Ok
 ```
+
+* **Sample cURL request:**
+```console
+    curl --location --request GET 'localhost:8080/health'
+```
+
+
 
 **Status**
 ----
@@ -101,9 +108,16 @@
     }   
 ```
 * **Response Description:**
-    * **ip:**  This remote ip address of the service. <br />
+    * **ip:**  This is the remote ip address of the client accessing the service. <br />
     * **health:**  A health status. <br />
     * **env:**  An object containing the configured environment variables. <br />
+
+
+* **Sample cURL request:**
+```console
+    curl --location --request GET 'localhost:8080/status'
+```
+
 
 **Subscribe**
 ----
@@ -138,6 +152,16 @@
 * **Response Description:**
     * **url:**  This url to notify the subscriber on. <br />
     * **topic:**  The topic the subscriber is subscribed to. <br />
+
+
+* **Sample cURL request:**
+```console
+    curl --location --request POST 'localhost:8080/subscribe/Sample Topic' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "url": "https://webhook.site/311e68d4-efeb-41ae-834a-e3100e62a5ce"
+    }'
+```
 
 **Publish**
 ----
@@ -175,3 +199,12 @@
 * **Response Description:**
     * **data:**  The payload sent to all subscribers. <br />
     * **topic:**  The topic the message is published to. <br />
+
+* **Sample cURL request:**
+```console
+    curl --location --request POST 'localhost:8080/publish/Sample Topic' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "key": "value"
+    }'
+```
