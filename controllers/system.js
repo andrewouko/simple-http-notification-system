@@ -1,4 +1,16 @@
+const { isEmpty } = require("lodash");
+const { handleError, ErrorHandler } = require("../error");
+
 exports.Ping = (req, res) => {
+    let error
+    const envNotSet = ['HOST', 'USER', 'PASSWORD', 'DB'].some(env_val => {
+        if( isEmpty(process.env[env_val]) ) {
+            error = new ErrorHandler(500, `The env file is misisng ${env_val} property`, null)
+            return true
+        }
+        return
+    })
+    if(envNotSet) return handleError(error, res)
     const client_ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     return res.status(200).type('json').json({
         ip: client_ip, 
