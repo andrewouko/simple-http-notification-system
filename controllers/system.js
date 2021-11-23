@@ -3,7 +3,7 @@ const { handleError, ErrorHandler } = require("../error");
 
 exports.Ping = (req, res) => {
     let error
-    const envNotSet = ['HOST', 'USER', 'PASSWORD', 'DB'].some(env_val => {
+    const envNotSet = ['HOST', 'USER', 'DB'].some(env_val => {
         if( isEmpty(process.env[env_val]) ) {
             error = new ErrorHandler(500, `The env file is misisng ${env_val} property`, null)
             return true
