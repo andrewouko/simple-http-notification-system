@@ -25,6 +25,24 @@ const test_topic =  "Sample"
 
 describe('Test Routes', function () {
 
+    /* const OLD_ENV = process.env;
+
+    beforeEach(() => {
+        jest.resetModules() 
+        process.env = { ...OLD_ENV, ...{
+            PORT: 8080,
+            APP_NAME: 'http-notification-system',
+            HOST: 'localhost',
+            USER: 'root',
+            PASSWORD: null,
+            DB: 'notification-service'
+        } }; 
+    });
+
+    afterAll(() => {
+        process.env = OLD_ENV; 
+    }); */
+
     test('responds to /health', async() => {
         const res = await request(app).get('/health');
         expect(res.header['content-type']).toBe('text/html; charset=utf-8');
@@ -34,6 +52,7 @@ describe('Test Routes', function () {
 
     test('responds to /status', async() => {
         const res = await request(app).get('/status').set('X-Forwarded-For', CLIENT_IP);
+        // console.log(res)
         expect(res.header['content-type']).toBe('application/json; charset=utf-8');
         expect(res.statusCode).toBe(200);
         expect(res.text).toEqual(JSON.stringify(
