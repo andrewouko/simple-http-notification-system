@@ -18,6 +18,10 @@ const logError = (err) => {
 }
 const handleError = (err, res) => {
     logError(err)
+    if(err.payload && err.payload.sql) err.payload = {
+        errno: err.payload.errno,
+        message: 'Sql error logged'
+    }
     res.status(err.statusCode || 500).send({
         status: err.statusCode || 500,
         message: err.message,

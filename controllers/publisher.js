@@ -2,8 +2,10 @@ const { ErrorHandler, handleError } = require('../error.js')
 const https = require('https')
 const http = require('http')
 const { writeFile, read, statSync, existsSync, appendFile, readFile } = require('fs')
-const { isEmpty } = require('lodash')
+const { isEmpty, update } = require('lodash')
 const { logger } = require('../logger.js')
+const { query } = require('../models/db.js')
+const { count } = require('console')
 
 const handleSuccess = (response, data) => {
     response.status(200).json({
@@ -56,39 +58,24 @@ exports.createSubsription = (req, res) => {
         let err =  new ErrorHandler(400, 'The path param topic must be set', req.params)
         return handleError(err, res)
     }
-    const handleFileError = err => {
-        new ErrorHandler(500, 'Unable to write to file: ' + file_path, err)
-        return handleError(err, res)
-    }
-    const handleSaveDataToFile = () => {
-        const data_to_add = `${req.params.topic},${req.body.url}`
-        // console.log('data to add',data_to_add)
-        readFile(file_path, (e, data) => {
-            if(e) return handleFileError(e)
-            // console.log('index of', data.toString().indexOf(data_to_add))
-            const handleSuccesResponse = () => handleSuccess(res, {
-                url: req.body.url,
-                topic: req.params.topic
-            })
-            if(data.toString().indexOf(data_to_add) < 0){
-                return appendFile(file_path, `${data_to_add}\\n`, err => {
-                    // console.log('Fule')
-                    if(err) return handleFileError(err)
-                    return handleSuccesResponse()
-                })
-            } else return handleSuccesResponse()
+
+    /**
+     * Insert into DB the url and topic
+     * The url and topic forms a unique subscription entry
+     */
+    query.runQuery(`INSERT IGNORE INTO subscription SET topic = '${req.params.topic}', url = '${req.body.url}'`, (err, result) => {
+        if(err){
+            error = new ErrorHandler(500, 'An error occured while inserting into subscription table', err)
+            return handleError(error, res)
+        }
+        return handleSuccess(res, {
+            url: req.body.url,
+            topic: req.params.topic
         })
-    }
-    if (!existsSync(file_path) || statSync(file_path).size === 0){
-        return writeFile(file_path, 'topic,url\\n',  err => {
-            if(err) return handleFileError(err)
-            return handleSaveDataToFile()
-        })
-    }
-    return handleSaveDataToFile()
+    })
 }
 
-exports.publishMessage = (req, res) => {
+exports.publishMessage = async(req, res) => {
     if(isEmpty(req.body)){
         let err =  new ErrorHandler(400, 'The request must have a body', req.body)
         return handleError(err, res)
@@ -98,55 +85,58 @@ exports.publishMessage = (req, res) => {
         return handleError(err, res)
     }
 
-    const handleSuccesResponse = () => handleSuccess(res, {
-        topic: req.params.topic,
-        data: req.body
+    // publish message to subs
+    const publishMessage = subscribers => subscribers.forEach(sub_url => {
+        sub_url = new URL(sub_url)
+        let options = {
+            hostname: sub_url.hostname,/* url.replace(/htt(p|ps):\/\//g, '').replace(/:\d+/, '') */
+            path: sub_url.pathname,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': JSON.stringify(req.body).length,
+            },
+            port: sub_url.port
+        }
+        // console.log(options, sub_url)
+        return httpRequest(options, JSON.stringify(req.body), sub_url.protocol == 'http:' ? http : https ).then(res => {
+            // console.log(res)
+            // log subscriber response
+            logger.info('Subscriber response: ' + JSON.stringify({
+                url: sub_url.href,
+                response: res
+            }))
+
+            /**
+             * Update the last publish date
+             */
+            const update_time = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+             query.runQuery(`UPDATE subscription SET last_publish = '${update_time}' WHERE topic = '${req.params.topic}' AND url = '${req.body.url}'`, (err, result) => {
+                if(err){
+                    logger.error('An error occured while updating the subscription table' + JSON.stringify(err))
+                } else logger.info('Successfully updated the last publish time of the subscription')
+             })
+        }).catch(error => {
+            logger.error('Subscriber http error: ' + JSON.stringify({
+                url: sub_url.href,
+                error: error
+            }))
+        })
     })
 
-    if (!existsSync(file_path) || statSync(file_path).size === 0){
-        // there are no subscriibers as the file is empty
-        return handleSuccesResponse()
-    }
-    return readFile(file_path, (e, data) => {
-        if(e) return handleFileError(e)
-
-        const data_arr = data.toString().split('\\n').filter(el => el.length).map(col => col.split(','))
-        const topic_index = data_arr[0].indexOf('topic')
-        const url_index = data_arr[0].indexOf('url')
-
-        // subscribers to publish to
-        const subscribers = data_arr.filter((el, i) => i >= 1 && el[topic_index] == req.params.topic).map(el => el[url_index])
-        // console.log(subscribers)
-        subscribers.forEach(sub_url => {
-            sub_url = new URL(sub_url)
-            let options = {
-                hostname: sub_url.hostname,/* url.replace(/htt(p|ps):\/\//g, '').replace(/:\d+/, '') */
-                path: sub_url.pathname,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': JSON.stringify(req.body).length,
-                },
-                port: sub_url.port
-            }
-            // console.log(options, sub_url)
-            return httpRequest(options, JSON.stringify(req.body), sub_url.protocol == 'http:' ? http : https ).then(res => {
-                // console.log(res)
-                // log subscriber response
-                logger.info('Subscriber response: ' + JSON.stringify({
-                    url: sub_url.href,
-                    response: res
-                }))
-
-            }).catch(error => {
-                logger.error('Subscriber http error: ' + JSON.stringify({
-                    url: sub_url.href,
-                    error: error
-                }))
-            })
-            // httpRequest()
+    /**
+     * Select subscribers to publish to from subscription table
+     * based on the topic given in the path param
+     */
+    query.runQuery(`SELECT url FROM subscription WHERE topic = '${req.params.topic}'`, (err, result) => {
+        if(err){
+            error = new ErrorHandler(500, 'An error occured while reading from subscription table', err)
+            return handleError(error, res)
+        }
+        publishMessage(result.map(el => el.url))
+        return handleSuccess(res, {
+            topic: req.params.topic,
+            data: req.body
         })
-
-        return handleSuccesResponse()
     })
 }
