@@ -1,31 +1,24 @@
 # How to start the application
 
-**Install dependencies using npm :**
+### 1. Install dependencies using npm
 
 `npm install`
 
-**Create .env file in `the project root folder` with following variables :**
+### 2. Create .env file in `the project root folder` with following variables :
 
 -   `PORT` : This is the port where the applicationw will be running from
 -   `APP_NAME` : This is a name for the application. This will be the name used in the activity logs.
--   `TOPICS_AND_URLS` : This is the name for the csv file used to store the topics and urls data.
+-   `HOST` : Hostname to use for the db connection.
+-   `USER` : Username to use for the db connection.
+-   `PASSWORD` : Password of the user to use for the db connection.
+-   `DB` : Database name to use for the storing
 
 *A sample is provided in the project root*
 
-**Run the development server using the scripts provided in package.json :**
+### 3. Install the mysql database using the notification-service.sql file :
+`notification-service.sql`
 
-`npm run start`
-
-*Application will now be accessible from the port provided in the .env file*
-
-**Activity & Error Logging  Files :**
-
-*Located in the root of the project and must be writable*
-
-- `${APP_NAME}.log`
-- `error.log`
-
-## TEST IF APPLICATION IS INSTALLED CORRECTLY
+### 4. TEST IF APPLICATION IS INSTALLED CORRECTLY
 
 **Manual Test:**
 Navigate to `http://host:port/health` e.g http:localhost:8080/health
@@ -34,13 +27,27 @@ Navigate to `http://host:port/health` e.g http:localhost:8080/health
 `npm test`
 
 
+## 5. Run the development server using the scripts provided in package.json :
 
-**HTTP NOTIFICATION SYSTEM REST API**
+`npm run start`
+
+*Application will now be accessible from the port provided in the .env file*
+
+# Activity & Error Logging  Files 
+
+*Located in the root of the project and must be writable*
+
+- `${APP_NAME}.log`
+- `error.log`
+
+
+
+**HTTP NOTIFICATION SYSTEM REST API DESCRIPTION**
 ====
 
 **General Error Responses**
 ----
-    <_A brief description of the HTTP format of the errors.>
+    <_A brief description of the HTTP format of the application's errors.>
 
 * **Sample Error Response Headers:**
     * **HTTP Status Code:** 404 | 400 | 500 <br />
