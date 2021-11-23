@@ -20,10 +20,10 @@
 
 **Activity & Error Logging  Files :**
 
+*Located in the root of the project and must be writable*
+
 - `${APP_NAME}.log`
 - `error.log`
-
-*Located in the root of the project and must be writable*
 
 **TEST IF APPLICATION IS INSTALLED CORRECTLY :**
 
