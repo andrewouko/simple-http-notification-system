@@ -25,9 +25,14 @@
 - `${APP_NAME}.log`
 - `error.log`
 
-**TEST IF APPLICATION IS INSTALLED CORRECTLY :**
+## TEST IF APPLICATION IS INSTALLED CORRECTLY
 
+**Manual Test**
+Navigate to `http://host:port/health` e.g http:localhost:8080/health
+
+**Unit test**
 `npm test`
+
 
 
 **HTTP NOTIFICATION SYSTEM REST API**
