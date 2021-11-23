@@ -27,7 +27,7 @@
 
 **TEST IF APPLICATION IS INSTALLED CORRECTLY :**
 
-`http://host:port/status` e.g http:localhost:8080/status
+`npm test`
 
 
 **HTTP NOTIFICATION SYSTEM REST API**
